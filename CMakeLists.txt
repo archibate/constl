@@ -7,7 +7,10 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(main LANGUAGES CXX)
 
-add_executable(main main.cpp)
+add_executable(main main.cpp pbb/core.cpp)
+
+find_package(Threads REQUIRED)
+target_link_libraries(main PUBLIC Threads::Threads)
 
 find_package(TBB REQUIRED)
 target_link_libraries(main PUBLIC TBB::tbb)
@@ -26,4 +29,4 @@ target_link_libraries(main PUBLIC benchmark::benchmark)
 
 find_package(GTest REQUIRED)
 target_link_libraries(main PUBLIC GTest::gtest)
-target_link_libraries(main PUBLIC GTest::gtest_main)
+# target_link_libraries(main PUBLIC GTest::gtest_main)

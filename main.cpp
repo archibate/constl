@@ -1,4 +1,17 @@
 #if 0
+#include "radix_sort.h"
+#include <benchmark/benchmark.h>
+static void BM_radix_sort(benchmark::State &state) {
+    std::vector<uint32_t> pos(m);
+    for (size_t i = 0; i < m; i++) {
+        pos[i] = rand() % n;
+    }
+    std::vector<uint32_t> cnt(n);
+    for (auto _ : state) {
+        radix_sort(pos.data(), (size_t)m);
+    }
+}
+#if 1
 #include <cstdio>
 #include <cstdlib>
 #include <atomic>
@@ -9,12 +22,28 @@
 constexpr int n = 10'000'000;
 constexpr int m = n * 2;
 
-static void BM_atomic_count_relaxed_sorted(benchmark::State &state) {
+static void BM_atomic_count_relaxed_radix_sorted(benchmark::State &state) {
     std::vector<uint32_t> pos(m);
     for (size_t i = 0; i < m; i++) {
         pos[i] = rand() % n;
     }
     radix_sort(pos.data(), (size_t)m);
+    std::vector<uint32_t> cnt(n);
+    for (auto _ : state) {
+        #pragma omp parallel for
+        for (size_t i = 0; i < m; i++) {
+            std::atomic_ref(cnt[pos[i]]).fetch_add(1, std::memory_order_relaxed);
+        }
+    }
+}
+/* BENCHMARK(BM_atomic_count_relaxed_radix_sorted); */
+
+static void BM_atomic_count_relaxed_sorted(benchmark::State &state) {
+    std::vector<uint32_t> pos(m);
+    for (size_t i = 0; i < m; i++) {
+        pos[i] = rand() % n;
+    }
+    std::sort(pos.begin(), pos.end());
     std::vector<uint32_t> cnt(n);
     for (auto _ : state) {
         #pragma omp parallel for
@@ -55,11 +84,11 @@ static void BM_atomic_count_sequential(benchmark::State &state) {
 BENCHMARK(BM_atomic_count_sequential);
 
 static void BM_atomic_count_relaxed(benchmark::State &state) {
-    std::vector<int> pos(m);
+    std::vector<uint32_t> pos(m);
     for (int i = 0; i < m; i++) {
         pos[i] = rand() % n;
     }
-    std::vector<int> cnt(n);
+    std::vector<uint32_t> cnt(n);
     for (auto _ : state) {
         #pragma omp parallel for
         for (int i = 0; i < m; i++) {
@@ -85,4 +114,5 @@ TEST(RadixSortTest, SortsInAscendingOrder) {
     EXPECT_EQ(input[i], expected[i]);
   }
 }
+#endif
 #endif
