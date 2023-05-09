@@ -1,7 +1,8 @@
 #include <x86intrin.h>
 #include "transpose.h"
 #include "asarray.h"
-#include <gtest/gtest.h>
+
+#if 0
 
 TEST(Transpose, MM256Transpose4PS) {
     __m256 row0 = _mm256_setr_ps(1, 2, 3, 4, 5, 6, 7, 8);
@@ -40,3 +41,5 @@ TEST(Transpose, MM256Transpose4EPI32) {
     EXPECT_EQ(asarray(row2), asarray(expected_row2));
     EXPECT_EQ(asarray(row3), asarray(expected_row3));
 }
+
+#endif

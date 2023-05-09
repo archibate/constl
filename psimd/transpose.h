@@ -2,7 +2,6 @@
 
 #include <x86intrin.h>
 
-
 #define _MM256_TRANSPOSE4_PS(row0, row1, row2, row3) \
 { \
     __m256 tmp0, tmp1, tmp2, tmp3; \

@@ -12,7 +12,7 @@ add_executable(main
     pbb/core.cpp
     psimd/transpose.cpp
     psimd/adjacent_difference.cpp
-    # contest/test.cpp
+    contest/test.cpp
     )
 
 find_package(Threads REQUIRED)

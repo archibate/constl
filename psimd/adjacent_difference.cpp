@@ -1,24 +1,14 @@
 #include <x86intrin.h>
+#include "adjacent_difference.h"
 #include "transpose.h"
 #include "asarray.h"
-#include <gtest/gtest.h>
+#include "strategy.h"
+#include "../contest/test.h"
 #include "../conutils/print.h"
 
-static void adjacent_difference_f32_naive(float const *__restrict in, float *__restrict out, size_t size, float prev) {
-    for (size_t i = 0; i < size; i++) {
-        float val = in[i];
-        out[i] = val - prev;
-        prev = val;
-    }
-}
+namespace psimd {
 
-static void adjacent_difference_i32_naive(int const *__restrict in, int *__restrict out, size_t size, int prev) {
-    for (size_t i = 0; i < size; i++) {
-        int val = in[i];
-        out[i] = val - prev;
-        prev = val;
-    }
-}
+namespace {
 
 static void adjacent_difference_f32_avx(float const *__restrict in, float *__restrict out, size_t size, float prev) {
     __m256 last, next, r, g, b, a, x, y, z, w;
@@ -83,6 +73,16 @@ static void adjacent_difference_i32_avx(int const *__restrict in, int *__restric
     }
 }
 
+}
+
+void adjacent_difference<float, strategy::AVX>::operator()(float const *__restrict in, float *__restrict out, size_t size, float prev) const {
+    return adjacent_difference_f32_avx(in, out, size, prev);
+}
+
+void adjacent_difference<int, strategy::AVX>::operator()(int const *__restrict in, int *__restrict out, size_t size, int prev) const {
+    return adjacent_difference_i32_avx(in, out, size, prev);
+}
+
 namespace tests {
 
 template <class T>
@@ -95,83 +95,35 @@ static void fill_test_data(T *first, T *last, T init) {
     }
 }
 
-class AdjacentDifferenceTestFixture : public ::testing::TestWithParam<int> {
-};
+TEST_PARAMS(AdjacentDifferenceRanges, {
+    0, 1, 7, 32, 64, 128, 129, 711, 1989, 2013,
+});
+TEST_TYPES(AdjacentDifferenceTypes
+           , std::tuple<int, strategy::AVX>
+           , std::tuple<float, strategy::AVX>
+           , std::tuple<int, strategy::Scalar>
+           , std::tuple<float, strategy::Scalar>
+           );
 
-INSTANTIATE_TEST_SUITE_P(
-    AdjacentDifference,
-    AdjacentDifferenceTestFixture,
-    ::testing::Values(
-        0, 1, 7, 32, 64, 128, 129, 711, 1989, 2013
-    ));
+TEST_PT(AdjacentDifference, AdjacentDifferenceRanges, AdjacentDifferenceTypes) {
+    const auto size = getTestParam();
+    using T = std::tuple_element_t<0, TestType>;
+    using Strategy = std::tuple_element_t<1, TestType>;
+    alignas(64) T in[size];
+    fill_test_data(in, in + size, T(42));
+    alignas(64) T out[size];
 
-TEST_P(AdjacentDifferenceTestFixture, F32AVX) {
-    const int size = GetParam();
-    alignas(64) float in[size];
-    fill_test_data(in, in + size, 3.14f);
-    alignas(64) float out[size];
-
-    adjacent_difference_f32_avx(in, out, size, 2.718f);
+    adjacent_difference<T, Strategy>()(in, out, size, T(2718));
 
     for (int i = 0; i < size; i++) {
         if (i == 0) {
-            EXPECT_NEAR(out[i], 3.14f - 2.718f, 0.1f);
+            EXPECT_NEAR(out[i], T(42 - 2718));
         } else {
-            EXPECT_NEAR(out[i], i, 0.1f);
+            EXPECT_NEAR(out[i], i);
         }
     }
 }
 
-TEST_P(AdjacentDifferenceTestFixture, I32AVX) {
-    const int size = GetParam();
-    alignas(64) int in[size];
-    fill_test_data(in, in + size, 42);
-    alignas(64) int out[size];
-
-    adjacent_difference_i32_avx(in, out, size, 4);
-
-    for (int i = 0; i < size; i++) {
-        if (i == 0) {
-            EXPECT_EQ(out[i], 42 - 4);
-        } else {
-            EXPECT_EQ(out[i], i);
-        }
-    }
-}
-
-TEST_P(AdjacentDifferenceTestFixture, F32Naive) {
-    const int size = GetParam();
-    alignas(64) float in[size];
-    fill_test_data(in, in + size, 3.14f);
-    alignas(64) float out[size];
-
-    adjacent_difference_f32_naive(in, out, size, 2.718f);
-
-    for (int i = 0; i < size; i++) {
-        conutils::print(i);
-        if (i == 0) {
-            EXPECT_NEAR(out[i], 3.14f - 2.718f, 0.1f);
-        } else {
-            EXPECT_NEAR(out[i], (float)i, 0.1f);
-        }
-    }
-}
-
-TEST_P(AdjacentDifferenceTestFixture, I32Naive) {
-    const int size = GetParam();
-    alignas(64) int in[size];
-    fill_test_data(in, in + size, 42);
-    alignas(64) int out[size];
-
-    adjacent_difference_i32_naive(in, out, size, 4);
-
-    for (int i = 0; i < size; i++) {
-        if (i == 0) {
-            EXPECT_EQ(out[i], 42 - 4);
-        } else {
-            EXPECT_EQ(out[i], i);
-        }
-    }
 }
 
 }

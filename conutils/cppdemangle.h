@@ -8,7 +8,7 @@
 #include <cstdlib>
 #endif
 
-namespace constl {
+namespace conutils {
 
 namespace _cppdemangle_details {
 

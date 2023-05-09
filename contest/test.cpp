@@ -1,4 +1,6 @@
 #include "test.h"
+#include <iostream>
+#include <vector>
 
 namespace contest {
 
@@ -7,10 +9,20 @@ static auto &get_cases() {
     return inst;
 }
 
-void _register_test_case(const char *name, std::size_t id, std::function<void(ReportHandle *)> func) {
+void _register_test_case(const char *name, std::size_t id, std::string const &type, std::function<void(ReportHandle *)> func) {
     std::string casename = name;
-    casename += '/';
+    if (type.size()) {
+        casename += '<';
+        if (type.find("std::tuple<") == 0 && type.rfind(">") == type.size() - 1) {
+            casename.append(type.data() + 11, type.data() + type.size() - 1);
+        } else {
+            casename += type;
+        }
+        casename += '>';
+    }
+    casename += '(';
     casename += std::to_string(id);
+    casename += ')';
     get_cases().emplace_back(std::move(casename), std::move(func));
 }
 
@@ -36,24 +48,39 @@ int test_main(int argc, char **argv) {
     return 0;
 }
 
+ReportHandle::ReportHandle() = default;
+
+void ReportHandle::report_fail(FailureInfo fail) {
+    std::cerr << "[FAILED] " << casename << '\n';
+    std::cerr << fail.message << '\n';
+    ++fail_count;
+}
+
+void ReportHandle::report_pass() {
+    std::cerr << "[  OK  ] " << casename << '\n';
+    ++pass_count;
+}
+
+#if 0
 namespace tests {
 
-TEST_CASE(SimpleTest) {
+TEST(SimpleTest) {
     printf("Hello, world!\n");
 }
 
-TEST_PARAMS(SimpleParams, int, 0, 1, 2, 3, 4);
+TEST_PARAMS(SimpleParams, {0, 1, 2, 3, 4});
 TEST_TYPES(SimpleTypes, float, int, char, double);
 
-TEST_CASE_P(SimpleTestWithParams, SimpleParams) {
-    int i = get_param();
+TEST_P(SimpleTestWithParams, SimpleParams) {
+    int i = getTestParam();
     printf("%d\n", i);
 }
 
-TEST_CASE_T(SimpleTestWithTypes, SimpleTypes) {
+TEST_T(SimpleTestWithTypes, SimpleTypes) {
     printf("%s\n", typeid(TestType).name());
 }
 
 }
+#endif
 
 }

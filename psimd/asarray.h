@@ -3,6 +3,8 @@
 #include <x86intrin.h>
 #include <array>
 
+namespace psimd {
+
 inline std::array<float, 8> asarray(__m256 m) {
     alignas(32) std::array<float, 8> arr;
     _mm256_store_ps(arr.data(), m);
@@ -25,4 +27,6 @@ inline std::array<int, 4> asarray(__m128i m) {
     alignas(16) std::array<int, 4> arr;
     _mm_store_epi32(arr.data(), m);
     return arr;
+}
+
 }
