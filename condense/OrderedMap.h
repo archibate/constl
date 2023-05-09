@@ -4,6 +4,8 @@
 #include <vector>
 #include <utility>
 
+namespace condense {
+
 template <class K, class V>
 struct OrderedMap {
     std::unordered_map<K, std::size_t> unomap;
@@ -90,3 +92,5 @@ struct OrderedMap {
         return order.end();
     }
 };
+
+}

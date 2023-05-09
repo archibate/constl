@@ -3,6 +3,8 @@
 #include <vector>
 #include <cstring>
 
+namespace condense {
+
 struct BinaryReader {
 private:
     std::span<std::byte const> buf;
@@ -58,3 +60,5 @@ public:
         offset += sizeof(T);
     }
 };
+
+}

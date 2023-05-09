@@ -2,6 +2,8 @@
 #include <utility>
 #include <vector>
 
+namespace condense {
+
 template <class T, class DenseId = std::size_t, class Id = std::size_t>
 struct SparseVec {
     struct SparseBlock {
@@ -276,43 +278,6 @@ struct SparseVec {
         return m_densize - (block_count() << DenseBlock::N);
     }
 
-#if 0
-    void gc() noexcept {
-        std::vector<DenseBlock> newden;
-        gc(newden);
-        if (m_dense.capacity() > m_dense.size() * 3) {
-            m_dense.shrink_to_fit();
-        }
-        if (m_sparse.capacity() > m_sparse.size() * 3) {
-            m_sparse.shrink_to_fit();
-        }
-    }
-
-    void gc(std::vector<DenseBlock> &newden) noexcept {
-        newden.clear();
-        newden.resize(((std::size_t)m_densize + ((1 << DenseBlock::N) - 1)) & ((1 << DenseBlock::N) - 1));
-        std::size_t nblks = (std::size_t)m_densize >> DenseBlock::N;
-        std::size_t nrest = m_densize - (nblks << DenseBlock::N);
-        if (nblks) {
-            for (std::size_t blknr = 0; blknr != nblks; blknr++) {
-                DenseBlock &blk = m_dense[blknr];
-                for (std::size_t blkoff = 0; blkoff != (1 << DenseBlock::N); blkoff++) {
-                    fn(blk.inds[blkoff], blk.vals[blkoff]);
-                }
-            }
-        }
-        if (nrest) {
-            DenseBlock &bblk = m_dense[nblks];
-            for (std::size_t bblkoff = 0; bblkoff != nrest; bblkoff++) {
-                fn(bblk.inds[bblkoff], bblk.vals[bblkoff]);
-            }
-        }
-        std::swap(m_dense, newden);
-        m_sparse[0];
-        // todo: reset sparse
-    }
-#endif
-
     [[nodiscard]] DenseId size() const noexcept {
         return m_densize;
     }
@@ -321,3 +286,5 @@ struct SparseVec {
         return m_spsize;
     }
 };
+
+}

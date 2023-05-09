@@ -41,8 +41,8 @@ public:
         return m_grain;
     }
 
-    blocked_range(blocked_range &that, split) {
-        Index middle = that.m_begin + ((that.size() + 1) >> 1);
+    explicit blocked_range(blocked_range &that, split) {
+        Index middle = that.m_begin + (that.size() >> 1);
         m_begin = middle;
         m_end = that.m_end;
         m_grain = that.m_grain;

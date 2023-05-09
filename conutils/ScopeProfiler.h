@@ -8,6 +8,8 @@
 #include <map>
 #include <set>
 
+namespace conutils {
+
 class ScopeProfiler {
 public:
     using ClockType = std::chrono::high_resolution_clock;
@@ -121,4 +123,6 @@ void doNotOptimize(T volatile const &t) {}
 
 static void printScopeProfiler(std::ostream &out = std::cout) {
     ScopeProfiler::printLog(out);
+}
+
 }

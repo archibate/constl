@@ -1,6 +1,8 @@
 #include <utility>
 #include <memory>
 
+namespace constl {
+
 template <class T>
 struct deepcopy_ptr : public std::unique_ptr<T> {
     using std::unique_ptr<T>::unique_ptr;
@@ -13,3 +15,5 @@ struct deepcopy_ptr : public std::unique_ptr<T> {
     : std::unique_ptr<T>(that ? std::make_unique<T>(*that) : nullptr)
     {}
 };
+
+}

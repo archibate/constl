@@ -7,7 +7,13 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(main LANGUAGES CXX)
 
-add_executable(main main.cpp pbb/core.cpp)
+add_executable(main
+    main.cpp
+    pbb/core.cpp
+    psimd/transpose.cpp
+    psimd/adjacent_difference.cpp
+    # contest/test.cpp
+    )
 
 find_package(Threads REQUIRED)
 target_link_libraries(main PUBLIC Threads::Threads)
@@ -18,10 +24,10 @@ target_link_libraries(main PUBLIC TBB::tbb)
 find_package(OpenMP REQUIRED)
 target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
 
-if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options(main PUBLIC -march=native)
-elseif (MSVC)
+if (MSVC)
     target_compile_options(main PUBLIC /arch:AVX2)
+else()
+    target_compile_options(main PUBLIC -march=native)
 endif()
 
 find_package(benchmark REQUIRED)

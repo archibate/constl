@@ -30,13 +30,16 @@ private:
     T m_result;
     Body m_body;
     Join m_join;
+    T m_init;
 
 public:
     explicit simple_reduce_body(T init, Body body, Join join)
     : m_result(std::move(init))
     , m_body(std::move(body))
     , m_join(std::move(join))
-    {}
+    {
+        m_init = std::as_const(m_result);
+    }
 
     template <class Index>
     void operator()(blocked_range<Index> const &range) {
@@ -48,7 +51,7 @@ public:
     }
 
     explicit simple_reduce_body(simple_reduce_body &that, split)
-    : simple_reduce_body(std::as_const(that))
+    : simple_reduce_body(that.m_init, that.m_body, that.m_join)
     {}
 
     [[nodiscard]] T &&result() {
