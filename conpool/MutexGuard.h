@@ -4,6 +4,8 @@
 #include <mutex>
 #include <shared_mutex>
 
+namespace conpool {
+
 template <class T, class Mutex = std::mutex>
 struct MutexGuard {
     Mutex m_mutex;
@@ -96,3 +98,5 @@ struct RWMutexGuard {
         return m_inner;
     }
 };
+
+}

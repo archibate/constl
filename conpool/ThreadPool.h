@@ -11,7 +11,7 @@
 #include <thread>
 #include <latch>
 #include "ConcurrentQueue.h"
-#include "MoveOnlyFunction.h"
+#include "../constl/move_only_function.h"
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__linux__)
@@ -19,10 +19,12 @@
 #include <sched.h>
 #endif
 
+namespace conpool {
+
 struct ThreadPool {
     struct ThreadData {
         std::jthread m_thread;
-        ConcurrentQueue<MoveOnlyFunction> m_task_queue;
+        ConcurrentQueue<move_only_function<void()>> m_task_queue;
     };
 
     std::vector<ThreadData> m_threads;
@@ -173,3 +175,5 @@ struct ThreadPool {
         m_latch.wait();
     }
 };
+
+}

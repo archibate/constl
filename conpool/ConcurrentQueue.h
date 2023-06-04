@@ -5,6 +5,8 @@
 #include <optional>
 #include <memory>
 
+namespace conpool {
+
 template <class T>
 struct ConcurrentQueue {
     struct Node {
@@ -48,3 +50,5 @@ struct ConcurrentQueue {
         return result;
     }
 };
+
+}
