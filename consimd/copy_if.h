@@ -3,7 +3,7 @@
 #include <cstddef>
 #include "strategy.h"
 
-namespace psimd {
+namespace consimd {
 
 enum class binary_predicate_type {
     ge1_and_le2, /* inside an inclusive range */

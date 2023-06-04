@@ -6,7 +6,7 @@
 #include <cstdint>
 #include "../contest/test.h"
 
-namespace psimd {
+namespace consimd {
 
 /* static void print_m256(__m256 vec) { */
 /*     float arr[8]; */

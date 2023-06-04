@@ -3,7 +3,7 @@
 #include <cstddef>
 #include "strategy.h"
 
-namespace psimd {
+namespace consimd {
 
 template <class T, class Strategy>
 struct adjacent_difference {

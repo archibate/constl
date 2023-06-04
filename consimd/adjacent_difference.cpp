@@ -6,7 +6,7 @@
 #include <cstdint>
 #include "../contest/test.h"
 
-namespace psimd {
+namespace consimd {
 
 namespace {
 

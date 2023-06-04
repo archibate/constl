@@ -3,7 +3,7 @@
 #include <x86intrin.h>
 #include <array>
 
-namespace psimd {
+namespace consimd {
 
 inline std::array<float, 8> asarray(__m256 m) {
     alignas(32) std::array<float, 8> arr;

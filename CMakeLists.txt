@@ -8,9 +8,9 @@ set(CMAKE_CXX_STANDARD 20)
 project(main LANGUAGES CXX)
 
 add_executable(main
-    psimd/transpose.cpp
-    psimd/adjacent_difference.cpp
-    psimd/copy_if.cpp
+    consimd/transpose.cpp
+    consimd/adjacent_difference.cpp
+    consimd/copy_if.cpp
     contest/test.cpp
     )
 

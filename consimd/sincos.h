@@ -1,5 +1,9 @@
+#pragma once
+
 #include <immintrin.h>
 #include <cmath>
+
+namespace consimd {
 
 static __m128 mm_sincos_ps(__m128 xx, __m128 *cosret) {
     const __m128 DP1F = _mm_set1_ps(0.78515625f * 2.f);
@@ -30,4 +34,6 @@ static __m128 mm_sincos_ps(__m128 xx, __m128 *cosret) {
     cos1 = _mm_xor_ps(cos1, _mm_castsi128_ps(_mm_slli_epi32(_mm_castps_si128(_mm_and_ps(_mm_castsi128_ps(_mm_add_epi32(q, _mm_set1_epi32(1))), _mm_castsi128_ps(_mm_set1_epi32(0x2)))), 30)));
     *cosret = cos1;
     return sin1;
+}
+
 }
