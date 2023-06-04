@@ -247,4 +247,7 @@ struct Test_##_name : ::contest::NoTestParams, ::contest::NoTestTypes, ::contest
 template <class TestType> \
 void Test_##_name::do_run()
 
+#define TEST_BEGIN() namespace testing { namespace {
+#define TEST_END() }}
+
 }

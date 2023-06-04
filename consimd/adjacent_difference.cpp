@@ -89,8 +89,7 @@ void adjacent_difference<int, strategy::AVX>::operator()(int const *__restrict i
     return adjacent_difference_i32_avx(in, out, size, prev);
 }
 
-namespace testing {
-namespace {
+TEST_BEGIN()
 
 template <class T>
 static void fill_test_data(T *first, T *last, T init) {
@@ -132,7 +131,6 @@ TEST_PT(AdjacentDifference, AdjacentDifferenceRanges, AdjacentDifferenceTypes) {
     }
 }
 
-}
+TEST_END()
 
-}
 }

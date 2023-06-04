@@ -61,4 +61,8 @@ size_t copy_if<int, strategy::AVX>::operator()(int const *__restrict in, int *__
     return copy_if_i32_avx(in, out, size);
 }
 
+TEST_BEGIN()
+    // TODO: test this
+TEST_END()
+
 }

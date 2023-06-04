@@ -3,10 +3,9 @@
 #include "asarray.h"
 #include "../contest/test.h"
 
-namespace psimd {
+namespace consimd {
 
-namespace testing {
-namespace {
+TEST_BEGIN()
 
 TEST(Transpose_MM256Transpose4PS) {
     __m256 row0 = _mm256_setr_ps(1, 2, 3, 4, 5, 6, 7, 8);
@@ -46,7 +45,6 @@ TEST(Transpose_MM256Transpose4EPI32) {
     EXPECT_EQ(asarray(row3), asarray(expected_row3));
 }
 
-}
-}
+TEST_END()
 
 }

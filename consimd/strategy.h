@@ -1,6 +1,6 @@
 #pragma once
 
-namespace psimd {
+namespace consimd {
 
 namespace strategy {
 

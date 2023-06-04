@@ -62,7 +62,7 @@ void ReportHandle::report_pass() {
 }
 
 #if 0
-namespace tests {
+TEST_BEGIN()
 
 TEST(SimpleTest) {
     printf("Hello, world!\n");
@@ -80,7 +80,7 @@ TEST_T(SimpleTestWithTypes, SimpleTypes) {
     printf("%s\n", typeid(TestType).name());
 }
 
-}
+TEST_END()
 #endif
 
 }
