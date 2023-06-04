@@ -3,8 +3,8 @@
 #include "transpose.h"
 #include "asarray.h"
 #include "strategy.h"
+#include <cstdint>
 #include "../contest/test.h"
-#include "../conutils/print.h"
 
 namespace psimd {
 
@@ -14,25 +14,28 @@ static void adjacent_difference_f32_avx(float const *__restrict in, float *__res
     __m256 last, next, r, g, b, a, x, y, z, w;
     __m256i perm74560123;
     size_t i;
+    i = 0;
     last = _mm256_set1_ps(prev);
     perm74560123 = _mm256_setr_epi32(7, 4, 5, 6, 0, 1, 2, 3);
-    for (i = 0; i + 31 < size; i += 32) {
-        r = _mm256_load_ps(in + i);
-        g = _mm256_load_ps(in + i + 8);
-        b = _mm256_load_ps(in + i + 16);
-        a = _mm256_load_ps(in + i + 24);
-        _MM256_TRANSPOSE4_PS(r, g, b, a);
-        next = _mm256_permutevar8x32_ps(a, perm74560123);
-        x = _mm256_sub_ps(r, _mm256_blend_ps(next, last, 1));
-        y = _mm256_sub_ps(g, r);
-        z = _mm256_sub_ps(b, g);
-        w = _mm256_sub_ps(a, b);
-        _MM256_TRANSPOSE4_PS(x, y, z, w);
-        _mm256_store_ps(out + i, x);
-        _mm256_store_ps(out + i + 8, y);
-        _mm256_store_ps(out + i + 16, z);
-        _mm256_store_ps(out + i + 24, w);
-        last = next;
+    if (((uintptr_t)in & 31) == 0 && ((uintptr_t)out & 31) == 0) {
+        for (; i + 31 < size; i += 32) {
+            r = _mm256_load_ps(in + i);
+            g = _mm256_load_ps(in + i + 8);
+            b = _mm256_load_ps(in + i + 16);
+            a = _mm256_load_ps(in + i + 24);
+            _MM256_TRANSPOSE4_PS(r, g, b, a);
+            next = _mm256_permutevar8x32_ps(a, perm74560123);
+            x = _mm256_sub_ps(r, _mm256_blend_ps(next, last, 1));
+            y = _mm256_sub_ps(g, r);
+            z = _mm256_sub_ps(b, g);
+            w = _mm256_sub_ps(a, b);
+            _MM256_TRANSPOSE4_PS(x, y, z, w);
+            _mm256_store_ps(out + i, x);
+            _mm256_store_ps(out + i + 8, y);
+            _mm256_store_ps(out + i + 16, z);
+            _mm256_store_ps(out + i + 24, w);
+            last = next;
+        }
     }
     _MM_EXTRACT_FLOAT(prev, _mm256_extractf128_ps(last, 0), 0);
     for (; i < size; i++) {
@@ -45,25 +48,28 @@ static void adjacent_difference_f32_avx(float const *__restrict in, float *__res
 static void adjacent_difference_i32_avx(int const *__restrict in, int *__restrict out, size_t size, int prev) {
     __m256i last, next, r, g, b, a, x, y, z, w, perm74560123;
     size_t i;
+    i = 0;
     last = _mm256_set1_epi32(prev);
     perm74560123 = _mm256_setr_epi32(7, 4, 5, 6, 0, 1, 2, 3);
-    for (i = 0; i + 31 < size; i += 32) {
-        r = _mm256_load_si256((__m256i const *)(in + i));
-        g = _mm256_load_si256((__m256i const *)(in + i + 8));
-        b = _mm256_load_si256((__m256i const *)(in + i + 16));
-        a = _mm256_load_si256((__m256i const *)(in + i + 24));
-        _MM256_TRANSPOSE4_EPI32(r, g, b, a);
-        next = _mm256_permutevar8x32_epi32(a, perm74560123);
-        x = _mm256_sub_epi32(r, _mm256_blend_epi32(next, last, 1));
-        y = _mm256_sub_epi32(g, r);
-        z = _mm256_sub_epi32(b, g);
-        w = _mm256_sub_epi32(a, b);
-        _MM256_TRANSPOSE4_EPI32(x, y, z, w);
-        _mm256_store_si256((__m256i *)(out + i), x);
-        _mm256_store_si256((__m256i *)(out + i + 8), y);
-        _mm256_store_si256((__m256i *)(out + i + 16), z);
-        _mm256_store_si256((__m256i *)(out + i + 24), w);
-        last = next;
+    if (((uintptr_t)in & 31) == 0 && ((uintptr_t)out & 31) == 0) {
+        for (; i + 31 < size; i += 32) {
+            r = _mm256_load_si256((__m256i const *)(in + i));
+            g = _mm256_load_si256((__m256i const *)(in + i + 8));
+            b = _mm256_load_si256((__m256i const *)(in + i + 16));
+            a = _mm256_load_si256((__m256i const *)(in + i + 24));
+            _MM256_TRANSPOSE4_EPI32(r, g, b, a);
+            next = _mm256_permutevar8x32_epi32(a, perm74560123);
+            x = _mm256_sub_epi32(r, _mm256_blend_epi32(next, last, 1));
+            y = _mm256_sub_epi32(g, r);
+            z = _mm256_sub_epi32(b, g);
+            w = _mm256_sub_epi32(a, b);
+            _MM256_TRANSPOSE4_EPI32(x, y, z, w);
+            _mm256_store_si256((__m256i *)(out + i), x);
+            _mm256_store_si256((__m256i *)(out + i + 8), y);
+            _mm256_store_si256((__m256i *)(out + i + 16), z);
+            _mm256_store_si256((__m256i *)(out + i + 24), w);
+            last = next;
+        }
     }
     prev = _mm256_extract_epi32(last, 0);
     for (; i < size; i++) {
@@ -83,7 +89,7 @@ void adjacent_difference<int, strategy::AVX>::operator()(int const *__restrict i
     return adjacent_difference_i32_avx(in, out, size, prev);
 }
 
-namespace tests {
+namespace {
 
 template <class T>
 static void fill_test_data(T *first, T *last, T init) {
@@ -98,6 +104,7 @@ static void fill_test_data(T *first, T *last, T init) {
 TEST_PARAMS(AdjacentDifferenceRanges, {
     0, 1, 7, 32, 64, 128, 129, 711, 1989, 2013,
 });
+
 TEST_TYPES(AdjacentDifferenceTypes
            , std::tuple<int, strategy::AVX>
            , std::tuple<float, strategy::AVX>

@@ -8,12 +8,19 @@ set(CMAKE_CXX_STANDARD 20)
 project(main LANGUAGES CXX)
 
 add_executable(main
-    main.cpp
     pbb/core.cpp
     psimd/transpose.cpp
     psimd/adjacent_difference.cpp
+    psimd/copy_if.cpp
     contest/test.cpp
     )
+
+target_sources(main PUBLIC
+    bin/runtest.cpp
+    # bin/neighlut.cpp
+)
+
+target_include_directories(main PUBLIC .)
 
 find_package(Threads REQUIRED)
 target_link_libraries(main PUBLIC Threads::Threads)

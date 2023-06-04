@@ -4,7 +4,33 @@
 
 namespace condense {
 
-template <class T, class DenseId = std::size_t, class Id = std::size_t>
+template <class T, std::size_t N>
+union UninitArray {
+    T inner[N];
+
+    UninitArray() {}
+
+    [[nodiscard]] constexpr T &operator[](std::size_t i) noexcept {
+        return inner[i];
+    }
+
+    [[nodiscard]] constexpr T const &operator[](std::size_t i) const noexcept {
+        return inner[i];
+    }
+
+    template <class ...Ts>
+    constexpr T *construct_at(std::size_t i, Ts &&...ts)
+        noexcept(noexcept(std::construct_at(inner + i, std::forward<Ts>(ts)...)))
+    {
+        return std::construct_at(inner + i, std::forward<Ts>(ts)...);
+    }
+
+    constexpr void destroy_at(std::size_t i) noexcept {
+        return std::destroy_at(inner + i);
+    }
+};
+
+template <class T, class Id = std::size_t, class DenseId = std::size_t, class Alloc = std::allocator<T>>
 struct SparseVec {
     struct SparseBlock {
         static const std::size_t N = 8;
@@ -15,14 +41,12 @@ struct SparseVec {
 
     struct DenseBlock {
         static const std::size_t N = 8;
-        union {
-            T vals[1 << N];
-        };
         Id inds[1 << N];
+        UninitArray<T, (1 << N)> vals;
         DenseBlock() noexcept {}
     };
-    std::vector<SparseBlock> m_sparse;
-    std::vector<DenseBlock> m_dense;
+    std::vector<SparseBlock, Alloc> m_sparse;
+    std::vector<DenseBlock, Alloc> m_dense;
     DenseId m_densize;
     Id m_spsize;
 
@@ -120,7 +144,7 @@ struct SparseVec {
             m_dense.resize(blknr + 1);
         DenseBlock &blk = m_dense[blknr];
         blk.inds[blkoff] = id;
-        std::construct_at(&blk.vals[blkoff], std::move(val));
+        blk.vals.construct_at(blkoff, std::move(val));
         ++m_densize;
     }
 
@@ -128,7 +152,7 @@ struct SparseVec {
         std::size_t bblknr = (std::size_t)m_densize >> DenseBlock::N;
         std::size_t bblkoff = (std::size_t)m_densize & ((1 << DenseBlock::N) - 1);
         DenseBlock &bblk = m_dense[bblknr];
-        std::destroy_at(&bblk.vals[bblkoff]);
+        bblk.vals.destroy_at(bblkoff);
         --m_densize;
     }
 
@@ -139,9 +163,9 @@ struct SparseVec {
         std::size_t bblknr = (std::size_t)m_densize >> DenseBlock::N;
         std::size_t bblkoff = (std::size_t)m_densize & ((1 << DenseBlock::N) - 1);
         DenseBlock &bblk = m_dense[bblknr];
-        std::destroy_at(&blk.vals[blkoff]);
-        std::construct_at(&blk.vals[blkoff], std::move(bblk.vals[bblkoff]));
-        std::destroy_at(&blk.vals[bblkoff]);
+        blk.vals.destroy_at(blkoff);
+        blk.vals.construct_at(blkoff, std::move(bblk.vals[bblkoff]));
+        bblk.vals.destroy_at(bblkoff);
         Id indb = bblk.inds[bblkoff];
         blk.inds[blkoff] = indb;
         --m_densize;
@@ -184,6 +208,11 @@ struct SparseVec {
             return nullptr;
         }
         return &_dense_at(did);
+    }
+
+    [[nodiscard]] bool contains(Id id) const noexcept {
+        DenseId did;
+        return _sparse_read(id, did);
     }
 
     void pop_back() noexcept {
@@ -268,6 +297,10 @@ struct SparseVec {
 
     DenseBlock const &block(std::size_t blknr) const noexcept {
         return m_dense[blknr];
+    }
+
+    static constexpr std::size_t block_size() noexcept {
+        return DenseBlock::N;
     }
 
     std::size_t block_count() const noexcept {

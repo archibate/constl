@@ -7,7 +7,7 @@ namespace psimd {
 
 template <class T, class Strategy>
 struct adjacent_difference {
-    void operator()(T const *__restrict in, T *__restrict out, size_t size, T prev) const {
+    void operator()(T const *__restrict /*aligned*/in, T *__restrict /*aligned*/out, size_t size, T prev) const {
         for (size_t i = 0; i < size; i++) {
             T val = in[i];
             out[i] = val - prev;

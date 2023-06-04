@@ -188,6 +188,11 @@ struct TestParams_##_name { \
     static inline const auto params = __VA_ARGS__; \
     using param_type = std::decay_t<decltype(*std::begin(params))>; \
 };
+#define TEST_PARAMS_TYPED(_type, _name, ...) \
+struct TestParams_##_name { \
+    using param_type = _type; \
+    static inline const param_type params = __VA_ARGS__; \
+};
 #define TEST_TYPES(_name, ...) \
 struct TestTypes_##_name { \
     using template_types = std::tuple<__VA_ARGS__>; \
