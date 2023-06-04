@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD 20)
 project(main LANGUAGES CXX)
 
 add_executable(main
-    pbb/core.cpp
     psimd/transpose.cpp
     psimd/adjacent_difference.cpp
     psimd/copy_if.cpp
@@ -25,11 +24,11 @@ target_include_directories(main PUBLIC .)
 find_package(Threads REQUIRED)
 target_link_libraries(main PUBLIC Threads::Threads)
 
-find_package(TBB REQUIRED)
-target_link_libraries(main PUBLIC TBB::tbb)
-
-find_package(OpenMP REQUIRED)
-target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
+# find_package(TBB REQUIRED)
+# target_link_libraries(main PUBLIC TBB::tbb)
+#
+# find_package(OpenMP REQUIRED)
+# target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
 
 if (MSVC)
     target_compile_options(main PUBLIC /arch:AVX2)
@@ -37,9 +36,9 @@ else()
     target_compile_options(main PUBLIC -march=native)
 endif()
 
-find_package(benchmark REQUIRED)
-target_link_libraries(main PUBLIC benchmark::benchmark)
-
-find_package(GTest REQUIRED)
-target_link_libraries(main PUBLIC GTest::gtest)
+# find_package(benchmark REQUIRED)
+# target_link_libraries(main PUBLIC benchmark::benchmark)
+#
+# find_package(GTest REQUIRED)
+# target_link_libraries(main PUBLIC GTest::gtest)
 # target_link_libraries(main PUBLIC GTest::gtest_main)

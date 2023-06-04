@@ -57,7 +57,7 @@ void ReportHandle::report_fail(FailureInfo fail) {
 }
 
 void ReportHandle::report_pass() {
-    std::cerr << "[  OK  ] " << casename << '\n';
+    /* std::cerr << "[  OK  ] " << casename << '\n'; */
     ++pass_count;
 }
 

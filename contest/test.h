@@ -7,6 +7,7 @@
 #include <string>
 #include <functional>
 #include "../conutils/cppdemangle.h"
+#include "../conutils/print.h"
 
 namespace contest {
 
@@ -28,6 +29,14 @@ struct ReportHandle {
 };
 
 #define NAMED(x) ::contest::makeNamed(#x, x)
+#define EXPECT_TRUE(x, y) expects(::contest::Condition::expect_true(NAMED(x), NAMED(y)))
+#define EXPECT_FALSE(x, y) expects(::contest::Condition::expect_false(NAMED(x), NAMED(y)))
+#define EXPECT_EQ(x, y) expects(::contest::Condition::expect_eq(NAMED(x), NAMED(y)))
+#define EXPECT_NE(x, y) expects(::contest::Condition::expect_ne(NAMED(x), NAMED(y)))
+#define EXPECT_LT(x, y) expects(::contest::Condition::expect_lt(NAMED(x), NAMED(y)))
+#define EXPECT_GT(x, y) expects(::contest::Condition::expect_gt(NAMED(x), NAMED(y)))
+#define EXPECT_LE(x, y) expects(::contest::Condition::expect_le(NAMED(x), NAMED(y)))
+#define EXPECT_GE(x, y) expects(::contest::Condition::expect_ge(NAMED(x), NAMED(y)))
 #define EXPECT_NEAR(x, y) expects(::contest::Condition::expect_near(NAMED(x), NAMED(y)))
 
 template <class T>
@@ -38,7 +47,7 @@ struct Named {
     std::string as_message() const {
         std::string msg = name;
         msg += " = ";
-        msg += std::to_string(value);
+        msg += conutils::to_string(value);
         return msg;
     }
 };

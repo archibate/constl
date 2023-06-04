@@ -1,10 +1,14 @@
 #include <x86intrin.h>
 #include "transpose.h"
 #include "asarray.h"
+#include "../contest/test.h"
 
-#if 0
+namespace psimd {
 
-TEST(Transpose, MM256Transpose4PS) {
+namespace testing {
+namespace {
+
+TEST(Transpose_MM256Transpose4PS) {
     __m256 row0 = _mm256_setr_ps(1, 2, 3, 4, 5, 6, 7, 8);
     __m256 row1 = _mm256_setr_ps(9, 10, 11, 12, 13, 14, 15, 16);
     __m256 row2 = _mm256_setr_ps(17, 18, 19, 20, 21, 22, 23, 24);
@@ -23,7 +27,7 @@ TEST(Transpose, MM256Transpose4PS) {
     EXPECT_EQ(asarray(row3), asarray(expected_row3));
 }
 
-TEST(Transpose, MM256Transpose4EPI32) {
+TEST(Transpose_MM256Transpose4EPI32) {
     __m256i row0 = _mm256_setr_epi32(1, 2, 3, 4, 5, 6, 7, 8);
     __m256i row1 = _mm256_setr_epi32(9, 10, 11, 12, 13, 14, 15, 16);
     __m256i row2 = _mm256_setr_epi32(17, 18, 19, 20, 21, 22, 23, 24);
@@ -42,4 +46,7 @@ TEST(Transpose, MM256Transpose4EPI32) {
     EXPECT_EQ(asarray(row3), asarray(expected_row3));
 }
 
-#endif
+}
+}
+
+}
