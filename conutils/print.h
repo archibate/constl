@@ -180,13 +180,13 @@ namespace _print_details {
         template <std::size_t ...Is>
         static void _unrolled_print(std::ostream &os, T const &t, std::index_sequence<Is...>) {
             os << "{";
-            ((_printer<_rmcvref_t<std::tuple_element_t<Is, T>>>::print(std::get<Is>(t)), os << ", "), ...);
-            if constexpr (sizeof...(Is) != 0) _printer<_rmcvref_t<std::tuple_element_t<sizeof...(Is), T>>>::print(std::get<sizeof...(Is)>(t));
+            ((_printer<_rmcvref_t<std::tuple_element_t<Is, T>>>::print(os, std::get<Is>(t)), os << ", "), ...);
+            if constexpr (sizeof...(Is) != 0) _printer<_rmcvref_t<std::tuple_element_t<sizeof...(Is), T>>>::print(os, std::get<sizeof...(Is)>(t));
             os << "}";
         }
 
         static void print(std::ostream &os, T const &t) {
-            _unrolled_print(t, std::make_index_sequence<std::max(static_cast<std::size_t>(1), std::tuple_size_v<T>) - 1>{});
+            _unrolled_print(os, t, std::make_index_sequence<std::max(static_cast<std::size_t>(1), std::tuple_size_v<T>) - 1>{});
         }
     };
 
@@ -349,7 +349,7 @@ namespace _print_details {
         }
 
         friend std::ostream &operator<<(std::ostream &os, print_adaptor const &&self) {
-            printnl(self.t);
+            fprintnl(os, self.t);
             return os;
         }
     };
