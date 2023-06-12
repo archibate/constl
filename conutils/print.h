@@ -80,7 +80,7 @@ namespace _print_details {
     };
 
     template <class T, class U>
-    struct _enable_if_has_print<T, U, std::void_t<decltype(std::declval<T const &>().do_print(std::declval<std::ostream &>))>> {
+    struct _enable_if_has_print<T, U, std::void_t<decltype(std::declval<T const &>().do_print(std::declval<std::ostream &>()))>> {
         using type = U;
     };
 
