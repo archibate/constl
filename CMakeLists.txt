@@ -12,6 +12,7 @@ add_executable(main
     consimd/adjacent_difference.cpp
     consimd/copy_if.cpp
     contest/test.cpp
+    constl/extra_traits.cpp
     )
 
 target_sources(main PUBLIC
