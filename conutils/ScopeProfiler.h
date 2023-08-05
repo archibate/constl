@@ -105,11 +105,11 @@ void ScopeProfiler::printLog(std::ostream &out) {
 }
 
 #if defined(__GUNC__) || defined(__clang__)
-#define DefScopeProfiler ScopeProfiler _scopeProfiler(__PRETTY_FUNCTION__);
+#define DefScopeProfiler ::conutils::ScopeProfiler _scopeProfiler(__PRETTY_FUNCTION__);
 #elif defined(_MSC_VER)
-#define DefScopeProfiler ScopeProfiler _scopeProfiler(__FUNCSIG__);
+#define DefScopeProfiler ::conutils::ScopeProfiler _scopeProfiler(__FUNCSIG__);
 #else
-#define DefScopeProfiler ScopeProfiler _scopeProfiler(__func__);
+#define DefScopeProfiler ::conutils::ScopeProfiler _scopeProfiler(__func__);
 #endif
 
 template <class T>

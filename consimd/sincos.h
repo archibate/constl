@@ -36,4 +36,35 @@ static __m128 mm_sincos_ps(__m128 xx, __m128 *cosret) {
     return sin1;
 }
 
+static __m256 mm256_sincos_ps(__m256 xx, __m256 *cosret) {
+    const __m256 DP1F = _mm256_set1_ps(0.78515625f * 2.f);
+    const __m256 DP2F = _mm256_set1_ps(2.4187564849853515625E-4f * 2.f);
+    const __m256 DP3F = _mm256_set1_ps(3.77489497744594108E-8f * 2.f);
+    const __m256 P0sinf = _mm256_set1_ps(-1.6666654611E-1f);
+    const __m256 P1sinf = _mm256_set1_ps(8.3321608736E-3f);
+    const __m256 P2sinf = _mm256_set1_ps(-1.9515295891E-4f);
+    const __m256 P0cosf = _mm256_set1_ps(4.166664568298827E-2f);
+    const __m256 P1cosf = _mm256_set1_ps(-1.388731625493765E-3f);
+    const __m256 P2cosf = _mm256_set1_ps(2.443315711809948E-5f);
+
+    __m256 xa = _mm256_and_ps(xx, _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF)));
+    __m256i q = _mm256_cvtps_epi32(_mm256_mul_ps(xa, _mm256_set1_ps(2.f / M_PI)));
+    __m256 y = _mm256_cvtepi32_ps(q);
+    __m256 x = _mm256_fnmadd_ps(y, DP3F, _mm256_fnmadd_ps(y, DP2F, _mm256_fnmadd_ps(y, DP1F, xa)));
+    __m256 x2 = _mm256_mul_ps(x, x);
+    __m256 x3 = _mm256_mul_ps(x2, x);
+    __m256 x4 = _mm256_mul_ps(x2, x2);
+    __m256 s = _mm256_fmadd_ps(x3, _mm256_fmadd_ps(x2, P2sinf, _mm256_fmadd_ps(x, P1sinf, P0sinf)), x);
+    __m256 c = _mm256_fmadd_ps(x4, _mm256_fmadd_ps(x2, P2cosf, _mm256_fmadd_ps(x, P1cosf, P0cosf)), _mm256_fnmadd_ps(_mm256_set1_ps(0.5f), x2, _mm256_set1_ps(1.0f)));
+    __m256 mask = _mm256_castsi256_ps(_mm256_cmpeq_epi32(_mm256_setzero_si256(), _mm256_castps_si256(_mm256_and_ps(_mm256_castsi256_ps(q), _mm256_castsi256_ps(_mm256_set1_epi32(0x1))))));
+    __m256 sin1 = _mm256_blendv_ps(c, s, mask);
+    __m256 cos1 = _mm256_blendv_ps(s, c, mask);
+    /* __m256 sin1 = _mm256_or_ps(_mm256_and_ps(c, swap), _mm256_andnot_ps(s, swap)); */
+    /* __m256 cos1 = _mm256_or_ps(_mm256_and_ps(s, swap), _mm256_andnot_ps(c, swap)); */
+    sin1 = _mm256_xor_ps(sin1, _mm256_and_ps(_mm256_xor_ps(_mm256_castsi256_ps(_mm256_slli_epi32(q, 30)), xx), _mm256_set1_ps(-0.0f)));
+    cos1 = _mm256_xor_ps(cos1, _mm256_castsi256_ps(_mm256_slli_epi32(_mm256_castps_si256(_mm256_and_ps(_mm256_castsi256_ps(_mm256_add_epi32(q, _mm256_set1_epi32(1))), _mm256_castsi256_ps(_mm256_set1_epi32(0x2)))), 30)));
+    *cosret = cos1;
+    return sin1;
+}
+
 }
